@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuraMed AI - Medical OCR & Personal Health Record Platform</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="logo-container">
+      <div class="logo-icon">✚</div>
+      <div class="logo-text">AuraMed <span>AI Health OCR</span></div>
+    </div>
+    <nav class="nav-tabs">
+      <button class="nav-btn active" data-tab="demo-tab">Live OCR Demo</button>
+      <button class="nav-btn" data-tab="presentation-tab">Client Presentation Deck</button>
+      <button class="nav-btn" data-tab="tech-tab">Tech Architecture & QA</button>
+    </nav>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="window.print()">🖨️ Export / Print PDF</button>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- TAB 1: LIVE OCR DEMO -->
+    <section id="demo-tab" class="tab-pane active">
+      <div class="hero-banner">
+        <div class="hero-badge">AI-POWERED MEDICAL DOCUMENT PROCESSING</div>
+        <h1>Intelligent Medical OCR & Prescription Parsing</h1>
+        <p>Extract clinical data, medication dosages, lab values, and diagnostic insights from hand-written doctor prescriptions and lab reports automatically.</p>
+      </div>
+
+      <div class="ocr-container">
+        <!-- Left Panel: Document Upload & Viewer -->
+        <div class="ocr-panel card">
+          <div class="panel-header">
+            <h3>1. Select Sample Medical Document</h3>
+            <span class="status-badge" id="ocr-status">Ready</span>
+          </div>
+
+          <div class="sample-selector">
+            <button class="sample-btn active" onclick="loadSample('prescription')">📜 Doctor Prescription</button>
+            <button class="sample-btn" onclick="loadSample('labreport')">🔬 Lab Test Report</button>
+            <button class="sample-btn" onclick="loadSample('radiology')">🩺 Discharge Summary</button>
+          </div>
+
+          <div class="document-viewer" id="doc-viewer">
+            <div class="doc-wrapper" id="doc-wrapper">
+              <img id="doc-image" src="" alt="Medical Document">
+              <div class="ocr-overlay" id="ocr-overlay"></div>
+              <div class="scan-line" id="scan-line"></div>
+            </div>
+          </div>
+
+          <div class="panel-actions">
+            <button class="btn btn-primary" id="btn-process" onclick="runOCRProcess()">⚡ Run AI OCR Extraction</button>
+            <label class="btn btn-outline" for="custom-file-upload">📁 Upload Custom File</label>
+            <input type="file" id="custom-file-upload" accept="image/*" style="display:none;" onchange="handleFileUpload(event)">
+          </div>
+        </div>
+
+        <!-- Right Panel: Extracted Clinical Data -->
+        <div class="ocr-panel card">
+          <div class="panel-header">
+            <h3>2. Extracted Data & AI Analysis</h3>
+            <span class="confidence-pill" id="confidence-pill">Confidence: --%</span>
+          </div>
+
+          <div class="tab-subnav">
+            <button class="subtab-btn active" onclick="switchSubTab('structured')">Structured Data</button>
+            <button class="subtab-btn" onclick="switchSubTab('json')">Raw JSON</button>
+            <button class="subtab-btn" onclick="switchSubTab('meds')">Medication Schedule</button>
+          </div>
+
+          <div class="output-content">
+            <!-- Structured View -->
+            <div id="view-structured" class="subpane active">
+              <div class="info-grid" id="info-grid">
+                <div class="info-item">
+                  <span class="info-label">Patient Name:</span>
+                  <span class="info-value" id="res-patient">Sarah Jenkins</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Date:</span>
+                  <span class="info-value" id="res-date">2026-09-24</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Doctor/Provider:</span>
+                  <span class="info-value" id="res-doctor">Dr. E. Thompson, MD</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Document Type:</span>
+                  <span class="info-value" id="res-doctype">Outpatient Prescription</span>
+                </div>
+              </div>
+
+              <h4>Extracted Clinical Entities</h4>
+              <div class="table-wrapper">
+                <table class="data-table" id="entities-table">
+                  <thead>
+                    <tr>
+                      <th>Entity</th>
+                      <th>Extracted Value</th>
+                      <th>Normalized Value</th>
+                      <th>Confidence</th>
+                    </tr>
+                  </thead>
+                  <tbody id="entities-body">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+
+              <h4>AI Safety & Drug Interaction Check</h4>
+              <div class="ai-card" id="ai-safety-card">
+                <div class="ai-badge green">✓ PASS</div>
+                <div>
+                  <strong>No Contraindications Detected</strong>
+                  <p id="ai-safety-msg">Amoxicillin 500mg dosage is appropriate for adult bacterial infection. Patient history shows zero penicillin allergies.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- JSON View -->
+            <div id="view-json" class="subpane">
+              <pre class="json-code" id="json-code">// Click "Run AI OCR Extraction" to view parsed output</pre>
+            </div>
+
+            <!-- Medication Reminders View -->
+            <div id="view-meds" class="subpane">
+              <h4>Auto-Generated Push Notification Schedule</h4>
+              <div class="med-list" id="med-list">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: CLIENT PRESENTATION DECK -->
+    <section id="presentation-tab" class="tab-pane">
+      <div class="presentation-header card">
+        <h2>Medical Document OCR & Personal Health Records (PHR) Solution</h2>
+        <p class="subtitle">Client Pitch Deck & Architecture Overview | Fast, Secure & HIPAA-Compliant</p>
+      </div>
+
+      <!-- Feature Grid -->
+      <div class="grid-2">
+        <div class="card feature-card">
+          <div class="card-icon">🧠</div>
+          <h3>1. Advanced OCR Engine</h3>
+          <ul>
+            <li>Handwritten & Printed document recognition</li>
+            <li>LayoutLM & AWS Textract / Cloud Vision integration</li>
+            <li>ICD-10 & SNOMED CT medical term normalization</li>
+            <li>Confidence scoring per bounding box</li>
+          </ul>
+        </div>
+
+        <div class="card feature-card">
+          <div class="card-icon">💬</div>
+          <h3>2. RAG & LLM Health Assistant</h3>
+          <ul>
+            <li>LangChain / LlamaIndex retrieval pipeline</li>
+            <li>Vector DB (pgvector / Qdrant) for medical history search</li>
+            <li>Plain English explanations of lab results for patients</li>
+            <li>Drug-drug & drug-food interaction checks</li>
+          </ul>
+        </div>
+
+        <div class="card feature-card">
+          <div class="card-icon">📱</div>
+          <h3>3. Cross-Platform Flutter App</h3>
+          <ul>
+            <li>Live camera document scanner with boundary detection</li>
+            <li>Offline encrypted storage (Hive / SQLite)</li>
+            <li>Push notifications for pill reminders & lab results</li>
+            <li>Biometric authentication (FaceID / Fingerprint)</li>
+          </ul>
+        </div>
+
+        <div class="card feature-card">
+          <div class="card-icon">🔒</div>
+          <h3>4. Security & Data Isolation</h3>
+          <ul>
+            <li>AES-256 field-level encryption for PHI data</li>
+            <li>PostgreSQL Row Level Security (RLS) per tenant/patient</li>
+            <li>Role-Based Access Control (RBAC: Patient, Doctor, Admin)</li>
+            <li>Full audit logging for HIPAA compliance</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Pipeline Visualization -->
+      <div class="card pipeline-card">
+        <h3>End-to-End Medical OCR Workflow</h3>
+        <div class="pipeline-steps">
+          <div class="p-step">
+            <div class="p-num">1</div>
+            <div class="p-title">Image Capture</div>
+            <p>Flutter App scans document with edge detection & deskewing</p>
+          </div>
+          <div class="p-arrow">➔</div>
+          <div class="p-step">
+            <div class="p-num">2</div>
+            <div class="p-title">Preprocessing</div>
+            <p>Noise reduction, contrast enhancement, ROI segmentation</p>
+          </div>
+          <div class="p-arrow">➔</div>
+          <div class="p-step">
+            <div class="p-num">3</div>
+            <div class="p-title">OCR & NLP</div>
+            <p>FastAPI service runs LayoutLM / Textract + Medical NER model</p>
+          </div>
+          <div class="p-arrow">➔</div>
+          <div class="p-step">
+            <div class="p-num">4</div>
+            <div class="p-title">RAG Vectorization</div>
+            <p>Store in pgvector with Redis caching & trigger alerts</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: TECH ARCHITECTURE & QA -->
+    <section id="tech-tab" class="tab-pane">
+      <div class="card">
+        <h2>Technical Capabilities & System Answers</h2>
+        <p>Direct answers for technical review questions (Push Notifications, Payments, CI/CD, Security, Cloud Deployment, Backups)</p>
+
+        <div class="qa-grid">
+          <div class="qa-box">
+            <h4>1. Push Notifications & SMS</h4>
+            <p><strong>Solution:</strong> Firebase Cloud Messaging (FCM) integrated with Flutter front-end, paired with Twilio SMS API for fallback appointment/medication reminders. Microservices queue via Celery / Redis for high-throughput scheduled dispatch.</p>
+          </div>
+
+          <div class="qa-box">
+            <h4>2. Subscription & Payment Integrations</h4>
+            <p><strong>Solution:</strong> Stripe Subscriptions & In-App Purchases (RevenueCat / Apple App Store & Google Play Billing). Multi-tier plans (Free PHR tier vs Premium AI Health Assistant). Secure Webhooks handling automatic plan upgrades and renewals.</p>
+          </div>
+
+          <div class="qa-box">
+            <h4>3. Docker & CI/CD Pipeline</h4>
+            <p><strong>Solution:</strong> Automated GitHub Actions workflow building multi-stage Docker images. Automated pytest unit/integration testing, SonarQube code scan, pushing images to AWS ECR, and zero-downtime deployment via Kubernetes (EKS) / AWS ECS Fargate.</p>
+          </div>
+
+          <div class="qa-box">
+            <h4>4. Cloud & Production Deployment</h4>
+            <p><strong>Solution:</strong> Production setup on AWS (or GCP): FastAPI backend running behind Nginx / AWS ALB, PostgreSQL (RDS Aurora) with Multi-AZ failover, Redis ElastiCache for session & OCR task caching, AWS S3 with KMS encryption for document storage.</p>
+          </div>
+
+          <div class="qa-box">
+            <h4>5. API & Application Security</h4>
+            <p><strong>Solution:</strong> OAuth2 + JWT authentication, HTTPS/TLS 1.3 enforced, AES-256 KMS encryption for files, PostgreSQL Row Level Security (RLS) to enforce strict patient data isolation, OWASP top 10 compliance & rate limiting.</p>
+          </div>
+
+          <div class="qa-box">
+            <h4>6. Monitoring, Backups & Support</h4>
+            <p><strong>Solution:</strong> Prometheus & Grafana dashboard for API latency & OCR inference times, Sentry for real-time error tracking, Automated daily DB backups with 30-day point-in-time recovery (PITR), 99.9% uptime SLA design.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>AuraMed Healthcare Technology Suite | Designed for High-Performance AI Medical Document Processing</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
